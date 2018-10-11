@@ -28,9 +28,9 @@ app.on('will-quit', function () {
 app.on('ready', () => {
     const mb = menubar({
         index: path.join('file://', __dirname, '/index.html'),
-        icon: path.join(__dirname, '/assets/camera.png'),
+        icon: path.join(__dirname, '/assets/camera_48x48.png'),
         width: 280,
-        height: 480,
+        height: 300,
         resizable: false,
         showDockIcon: false,
         preloadWindow: true

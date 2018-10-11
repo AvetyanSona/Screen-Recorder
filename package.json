@@ -1,7 +1,10 @@
 {
-  "name": "desktop-capture-demo",
-  "version": "1.1.0",
+  "name": "desktop-capture-beta",
+  "version": "0.1.0",
   "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
   "author": "Artur Ter-Stepanyan",
   "description": "simple screen recorder test app",
   "dependencies": {

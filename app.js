@@ -86,12 +86,12 @@ function timer(action) {
                 secs = 0;
                 hours++;
             }
-            secs_block.innerHTML = secs;
+            secs_block.innerHTML = secs < 10 ? "0"+secs : secs;
             if(mins > 0) {
-                mins_block.innerHTML = mins;
+                mins_block.innerHTML = mins < 10 ? "0"+mins : mins;
             }
             if(hours > 0) {
-                hours_block.innerHTML = hours;
+                hours_block.innerHTML = hours < 10 ? "0"+hours : hours;
             }
         },1000)
     } else {
