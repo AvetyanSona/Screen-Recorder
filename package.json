@@ -1,0 +1,11 @@
+{
+  "name": "desktop-capture-demo",
+  "version": "1.1.0",
+  "main": "main.js",
+  "author": "Artur Ter-Stepanyan",
+  "description": "simple screen recorder test app",
+  "dependencies": {
+    "buffer-from": "^1.1.1",
+    "menubar": "^5.2.3"
+  }
+}

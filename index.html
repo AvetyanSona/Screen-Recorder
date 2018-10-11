@@ -1,0 +1,53 @@
+<html>
+<head>
+<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" rel="stylesheet">
+
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="image-picker.min.js"></script>
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
+
+
+  <style>
+    .fa-circle {
+      color:red;
+    }
+
+    body {
+      border: 2px solid lightslategrey;
+    }
+
+    #close_button {
+      position: fixed;
+      top: 0;
+      right: 2px;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+</style>
+</head>
+<body>
+<b id="close_button" style="font-size: 22px;cursor:pointer;">&times;</b>
+<div class="container" style="margin-top:50px;">
+  <div class="container">
+    <h4 class="text-center" style="">Simple Screen Recorder</h4>
+    <div class="container" style="padding: 0">
+      <select class="form-control container-fluid"></select>
+    </div>
+    <div class="container" style="margin-top:10px">
+      <button class="btn btn-secondary" style="background: black" id="start"><i class="fas fa-circle"></i></button>
+      <button class="btn btn-secondary" id="pause_play"><i class="fas fa-play"></i></button>
+      <button class="btn btn-primary" id="open_folder"><i class="fas fa-folder"></i></button>
+    </div>
+    <div id="timer_block" class="container hidden" style="margin-top:10px; padding: 0">
+        <label>Hours: <b id="hours" class="badge badge-secondary">&nbsp;</b></label>
+        <label>Mins: <b id="mins" class="badge badge-secondary">&nbsp;</b></label>
+        <label>Secs: <b id="secs" class="badge badge-secondary">&nbsp;</b></label>
+    </div>
+  </div>
+</div>
+<script src="app.js"></script>
+</body>
+</html>
