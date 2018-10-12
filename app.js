@@ -35,6 +35,7 @@ let paused = false;
 let secs = 0;
 let mins = 0;
 let hours = 0;
+let restoreButton = document.getElementById('min-btn');
 
 $(document).ready(function() {
     audioInputSelect = document.querySelector('select');
@@ -66,6 +67,11 @@ $(document).ready(function() {
     function  errorCallback(e) {
 
     }
+
+    restoreButton.addEventListener("click", event => {
+        wnd = remote.getCurrentWindow();
+        wnd.minimize();
+    });
 });
 
 
@@ -132,7 +138,8 @@ function toggle() {
       if (!fs.existsSync(documents_path+'/rumpleRecorder')) {
           fs.mkdirSync(documents_path+'/rumpleRecorder');
       }
-      shell.openItem(files_path)
+
+      //shell.openItem(files_path)
   }
 }
 function stopRecording() {
@@ -144,6 +151,15 @@ function stopRecording() {
             if (err) {
                 console.error('Failed to save video ' + err);
             } else {
+
+                const BrowserWindow = remote.BrowserWindow;
+                var win = new BrowserWindow({ width: 900, height: 600 });
+
+                win.loadFile('video_link.html');
+                win.webContents.on('did-finish-load', () => {
+                    win.webContents.send('file', file);
+                })
+
                 console.log('Saved video: ' + file);
             }
         });

@@ -4,20 +4,20 @@ const path = require('path')
 
 let mainWindow;
 
-app.on('window-all-closed', () => {
-  if (process.platform != 'darwin')
-    app.quit();
-});
+// app.on('window-all-closed', () => {
+//   if (process.platform != 'darwin')
+//     app.quit();
+// });
 
-app.setPath("userData", __dirname + "/saved_recordings");
+//app.setPath("userData", __dirname + "/saved_recordings");
 
 // Quit when all windows are closed.
 app.on('window-all-closed', function () {
     // On OS X it is common for applications and their menu bar
     // to stay active until the user quits explicitly with Cmd + Q
-    if (process.platform !== 'darwin') {
+    //if (process.platform !== 'darwin') {
         app.quit()
-    }
+    //}
 })
 
 app.on('will-quit', function () {
@@ -26,6 +26,10 @@ app.on('will-quit', function () {
 })
 
 app.on('ready', () => {
+    let icon = '/assets/camera_48x48.png';
+    if (process.platform == 'darwin') {
+        icon = '/assets/camera_16x16.png';
+    }
     const mb = menubar({
         index: path.join('file://', __dirname, '/index.html'),
         icon: path.join(__dirname, '/assets/camera_48x48.png'),
