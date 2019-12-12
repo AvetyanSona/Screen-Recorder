@@ -1,0 +1,23 @@
+body {
+    border: 2px solid lightslategrey;
+}
+.fa-circle {
+    color:red;
+}
+.hidden {
+    display: none;
+}
+#title-bar-btns {
+    -webkit-app-region: no-drag;
+    position: fixed;
+    top: 4px;
+    right: 4px;
+}
+.window-button {
+    height: 30px !important;
+    line-height: 30px;
+    padding: 0 0.5rem;
+}
+.btn-outline-light {
+    color: #aeaeaf;
+}

@@ -14,7 +14,9 @@
 
 const {shell} = require('electron');
 const remote = require('electron').remote;
+const currWindow   = remote.getCurrentWindow();
 const app = remote.app;
+const BrowserWindow = remote.BrowserWindow;
 const documents_path = app.getPath('documents');
 const fs = require('fs');
 if (!fs.existsSync(documents_path+'/rumpleRecorder')) {
@@ -24,7 +26,7 @@ const files_path = documents_path+'/rumpleRecorder';
 let desktopSharing = false;
 let localStream;
 let recorder;
-let  blobs = [];
+let blobs = [];
 let audioInputSelect;
 let audioInputId;
 let secs_block = document.querySelector("#secs");
@@ -36,7 +38,8 @@ let secs = 0;
 let mins = 0;
 let hours = 0;
 let restoreButton = document.getElementById('min-btn');
-
+let muted = false;
+//Window Onload
 $(document).ready(function() {
     audioInputSelect = document.querySelector('select');
     navigator.mediaDevices.enumerateDevices()
@@ -67,14 +70,13 @@ $(document).ready(function() {
     function  errorCallback(e) {
 
     }
-
     restoreButton.addEventListener("click", event => {
         wnd = remote.getCurrentWindow();
         wnd.minimize();
     });
 });
 
-
+//Timer
 function timer(action) {
     if (action) {
         if (!paused) {
@@ -110,22 +112,20 @@ function timer(action) {
     }
 }
 
-
+//Click Events
 function toggle() {
   if (!desktopSharing) {
       document.querySelector('#pause_play>.fas').classList.toggle("fa-play");
       document.querySelector('#pause_play>.fas').classList.toggle("fa-pause");
-      document.querySelector('#start>.fas').classList.toggle("fa-circle");
+      document.querySelector('#start>.fas').classList.toggle("fa-camera");
       document.querySelector('#start>.fas').classList.toggle("fa-stop");
       document.querySelector('#timer_block').classList.toggle("hidden");
-
       timer(true);
-      onAccessApproved();
+      onAccessApproved(muted);
   } else {
       document.querySelector('#pause_play>.fas').classList.toggle("fa-pause");
       document.querySelector('#pause_play>.fas').classList.toggle("fa-play");
       document.querySelector('#timer_block').classList.toggle("hidden");
-
       desktopSharing = false;
     if (localStream)
       localStream.getTracks()[0].stop();
@@ -134,14 +134,15 @@ function toggle() {
       timer(false);
       recorder.stop();
       document.querySelector('#start>.fas').classList.toggle("fa-stop");
-      document.querySelector('#start>.fas').classList.toggle("fa-circle");
+      document.querySelector('#start>.fas').classList.toggle("fa-camera");
       if (!fs.existsSync(documents_path+'/rumpleRecorder')) {
           fs.mkdirSync(documents_path+'/rumpleRecorder');
       }
-
       //shell.openItem(files_path)
   }
 }
+
+//StopRecord Event
 function stopRecording() {
     var x = blobs;
     toArrayBuffer(new Blob(blobs, {type: 'video/webm'}), function(ab) {
@@ -150,23 +151,33 @@ function stopRecording() {
         fs.writeFile(file, buffer, function(err) {
             if (err) {
                 console.error('Failed to save video ' + err);
+                document.getElementById('hours').innerHTML = '00';
+                document.getElementById('mins').innerHTML = '00';
+                document.getElementById('secs').innerHTML = '00';
             } else {
-
-                const BrowserWindow = remote.BrowserWindow;
-                var win = new BrowserWindow({ width: 900, height: 600 });
-
+                // const BrowserWindow = remote.BrowserWindow;
+                var win = new BrowserWindow({
+                    width: 900,
+                    height: 600,
+                    webPreferences: {
+                        nodeIntegration: true
+                    }
+                });
                 win.loadFile('video_link.html');
                 win.webContents.on('did-finish-load', () => {
                     win.webContents.send('file', file);
+                    win.webContents.send('blobs', blobs);
                 })
-
                 console.log('Saved video: ' + file);
+                document.getElementById('hours').innerHTML = '00';
+                document.getElementById('mins').innerHTML = '00';
+                document.getElementById('secs').innerHTML = '00';
             }
         });
     });
 }
-function toArrayBuffer(blob, cb) {
 
+function toArrayBuffer(blob, cb) {
     let fileReader = new FileReader();
     fileReader.onload = function() {
         let arrayBuffer = this.result;
@@ -183,17 +194,38 @@ function toBuffer(ab) {
     }
     return buffer;
 }
+navigator.getUserMedia = navigator.getUserMedia ||
+    navigator.webkitGetUserMedia ||
+    navigator.mozGetUserMedia;
 
-function onAccessApproved() {
+function onAccessApproved(muted) {
   desktopSharing = true;
-    navigator.webkitGetUserMedia({
-        audio: true
-    }, function(audioStream) {
-        navigator.webkitGetUserMedia({
+  let constraints;
+    // console.log(navigator.getUserMedia({audio: true}));return;
+    if(muted){
+        constraints = {
             audio: false,
             video: {
                 mandatory: {
-                    chromeMediaSource: 'screen',
+                    chromeMediaSource: 'desktop',
+                    maxWidth: 1280,
+                    maxHeight: 720,
+                },
+                pointsOfInterest: {x : 10, y: -50 }
+            }
+        }
+    }else{
+        constraints = {
+            audio: true,
+            video: false,
+        }
+    }
+    navigator.getUserMedia(constraints, function(audioStream) {
+        navigator.getUserMedia({
+            audio: false,
+            video: {
+                mandatory: {
+                    chromeMediaSource: 'desktop',
                     maxWidth: 1280,
                     maxHeight: 720,
                 },
@@ -209,6 +241,7 @@ function onAccessApproved() {
                 if (audioTracks.length > 0) {
                     videoStream.addTrack(audioTracks[0]);
                 }
+                console.log('videoStream',videoStream);
             }
             recorder = new MediaRecorder(videoStream);
             blobs = [];
@@ -220,34 +253,49 @@ function onAccessApproved() {
         };
     }
 
-
     function handleUserMediaError(e) {
         console.error('handleUserMediaError', e);
     }
 
 }
 
-
-
 document.querySelector('#start').addEventListener('click', function(e) {
   toggle();
 });
-
-document.querySelector('#pause_play').addEventListener('click', function(e) {
-    if(recorder.state === "recording") {
-        recorder.pause();
-        paused = true;
-        timer(false);
-        document.querySelector('#pause_play>.fas').classList.toggle("fa-play");
-        document.querySelector('#pause_play>.fas').classList.toggle("fa-pause");
-        // recording paused
-    } else if(recorder.state === "paused") {
-        recorder.resume();
-        timer(true);
-        document.querySelector('#pause_play>.fas').classList.toggle("fa-pause");
-        document.querySelector('#pause_play>.fas').classList.toggle("fa-play");
-        // resume recording
+document.querySelector('#start_capture').addEventListener('click', function(e) {
+    document.querySelector('#record_block').classList.toggle("hidden");
+});
+document.querySelector('#mute').addEventListener('click', function(e) {
+    document.querySelector('#mute>.fas').classList.toggle("fa-microphone");
+    document.querySelector('#mute>.fas').classList.toggle("fa-microphone-slash");
+    if(muted){
+        muted = false;
+    }else{
+        muted = true;
     }
+});
+document.querySelector('#pause_play').addEventListener('click', function(e) {
+    if (typeof recorder !== "undefined"){
+        if(recorder.state === "recording") {
+            recorder.pause();
+            paused = true;
+            timer(false);
+            document.querySelector('#pause_play>.fas').classList.toggle("fa-play");
+            document.querySelector('#pause_play>.fas').classList.toggle("fa-pause");
+            // recording paused
+        } else if(recorder.state === "paused") {
+            recorder.resume();
+            timer(true);
+            document.querySelector('#pause_play>.fas').classList.toggle("fa-pause");
+            document.querySelector('#pause_play>.fas').classList.toggle("fa-play");
+            // resume recording
+        } else{
+            console.log('Record isn\'t starting yet');
+        }
+    } else{
+        console.log('Record isn\'t starting yet');
+    }
+
 });
 
 
@@ -258,9 +306,16 @@ $('select').change(function () {
 $("#close_button").click(function () {
     remote.getCurrentWindow().close();
 })
+appReloadBtn  = document.querySelector('#reload_button');
+appReloadBtn.addEventListener('click', e =>{
+    currWindow.reload();
+});
 $('#open_folder').click(function () {
     if (!fs.existsSync(documents_path+'/rumpleRecorder')) {
         fs.mkdirSync(documents_path+'/rumpleRecorder');
     }
     shell.openItem(files_path)
 })
+function foo() {
+console.log('boo');
+}

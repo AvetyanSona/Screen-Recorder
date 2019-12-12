@@ -1,6 +1,7 @@
 const {app, globalShortcut} = require('electron');
 const menubar = require('menubar')
 const path = require('path')
+const isMac = process.platform === 'darwin';
 
 let mainWindow;
 
@@ -12,11 +13,12 @@ let mainWindow;
 //app.setPath("userData", __dirname + "/saved_recordings");
 
 // Quit when all windows are closed.
+
 app.on('window-all-closed', function () {
     // On OS X it is common for applications and their menu bar
     // to stay active until the user quits explicitly with Cmd + Q
     //if (process.platform !== 'darwin') {
-        app.quit()
+        app.quit();
     //}
 })
 
@@ -27,19 +29,21 @@ app.on('will-quit', function () {
 
 app.on('ready', () => {
     let icon = '/assets/camera_48x48.png';
-    if (process.platform == 'darwin') {
+    if (isMac) {
         icon = '/assets/camera_16x16.png';
     }
     const mb = menubar({
         index: path.join('file://', __dirname, '/index.html'),
         icon: path.join(__dirname, '/assets/camera_48x48.png'),
-        width: 280,
+        width: 800,//280,
         height: 300,
-        resizable: false,
+        resizable: true,
         showDockIcon: false,
-        preloadWindow: true
+        preloadWindow: true,
+        webPreferences: {
+            nodeIntegration: true
+        }
     });
-
     // Register a shortcut listener.
     const ret = globalShortcut.register('CommandOrControl+Shift+W', function () {
         if (mb.window.isVisible()) {
@@ -53,9 +57,8 @@ app.on('ready', () => {
         console.log('registration failed')
     }
 
-    mb.showWindow()
-
-
+    mb.showWindow();
+    mb.window.openDevTools();
     // mainWindow = new BrowserWindow({width: 500, height: 800});
 
   // mainWindow.loadURL('file://' + __dirname + '/index.html');
@@ -64,3 +67,4 @@ app.on('ready', () => {
   //   mainWindow = null;
   // });
 });
+

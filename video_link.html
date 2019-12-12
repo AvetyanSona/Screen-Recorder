@@ -1,16 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link href="assets/css/bootstrap.min.css" rel="stylesheet">
     <meta charset="UTF-8">
     <title>Title</title>
 </head>
 <body>
     <video id="player" controls="true" autoplay="true" style="width: 100%;height: 100%"></video>
+    <button id="saveVideo" class="btn btn-light">Save</button>
 </body>
 <script>
-    require('electron').ipcRenderer.on('file', (event, message) => {
-        document.querySelector("#player").setAttribute("src", "file:///"+message);
-    })
-
+    const electron = require('electron');
+    electron.ipcRenderer.on('file', (event, message) => {
+        document.querySelector("#player").setAttribute("src", "file://"+message);
+    });
+    electron.ipcRenderer.on('blobs', (event, message) => {
+        blobs = message;
+    });
+    document.querySelector('#saveVideo').addEventListener('click',function () {
+        foo();
+        // let blob = new Blob(blobs, {type: 'video/webm'});
+        // let url = URL.createObjectURL(blob);
+        // let a = document.createElement('a');
+        // document.body.appendChild(a);
+        // const documents_path = app.getPath('simple_screen_recorder');
+        // const fs = require('fs');
+        // if (!fs.existsSync(documents_path+'/loadRecords')) {
+        //     fs.mkdirSync(documents_path+'/loadRecords');
+        // }
+        // const files_path = documents_path+'/loadRecords';
+        // a.style = 'display: none';
+        // a.href = url;
+        // a.download = files_path + '/' + new Date().getTime() + '.webm';
+        // fileName = files_path + '/' + new Date().getTime() + '.webm';
+        // fs.writeFile(fileName,function(err) {
+        //     if(err){
+        //         console.log('err');
+        //     }else{
+        //         console.log('its ok');
+        //     }
+        // })
+        //
+        // a.download = 'electron-screen-recorder.webm';
+        // a.click();
+        // setTimeout(function () {
+        //     document.body.removeChild(a)
+        //     window.URL.revokeObjectURL(url)
+        // }, 100)
+    });
 </script>
+<script>require("app.js");</script>
 </html>
