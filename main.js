@@ -1,9 +1,14 @@
-const {app, globalShortcut} = require('electron');
+const {app, globalShortcut, ipcMain} = require('electron');
 const menubar = require('menubar')
 const path = require('path')
 const isMac = process.platform === 'darwin';
+const { fork } = require('child_process')
+const ps = fork(`${__dirname}/server.js`)
 
 let mainWindow;
+let mainMenuBlockStyle = true;
+// global.sharedObj = {value: mainMenuBlockStyle};
+// console.log('mainjs',mainMenuBlockStyle);
 
 // app.on('window-all-closed', () => {
 //   if (process.platform != 'darwin')
@@ -26,7 +31,9 @@ app.on('will-quit', function () {
     // Unregister all shortcuts.
     globalShortcut.unregisterAll()
 })
-
+ipcMain.on( "setMyGlobalVariable", ( event, mainMenuBlockStyle ) => {
+    global.mainMenuBlockStyle = mainMenuBlockStyle;
+} );
 app.on('ready', () => {
     let icon = '/assets/camera_48x48.png';
     if (isMac) {
@@ -56,7 +63,6 @@ app.on('ready', () => {
     if (!ret) {
         console.log('registration failed')
     }
-
     mb.showWindow();
     mb.window.openDevTools();
     // mainWindow = new BrowserWindow({width: 500, height: 800});
