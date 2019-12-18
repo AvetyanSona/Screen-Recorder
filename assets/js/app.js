@@ -111,6 +111,11 @@ function timer(action) {
                 secs = 0;
                 hours++;
             }
+            if(mins == 11){
+                desktopSharing = true;
+                in_process = false;
+                toggle();
+            }
             secs_block.innerHTML = secs < 10 ? "0"+secs : secs;
             if(mins > 0) {
                 mins_block.innerHTML = mins < 10 ? "0"+mins : mins;
@@ -118,6 +123,7 @@ function timer(action) {
             if(hours > 0) {
                 hours_block.innerHTML = hours < 10 ? "0"+hours : hours;
             }
+
         },1000)
     } else {
       clearInterval(timer_);
@@ -137,9 +143,11 @@ function toggle() {
     document.querySelector('#start>.fas').classList.toggle("fa-camera");
     document.querySelector('#timer_block').classList.toggle("hidden");
     if (!desktopSharing && in_process) {
+        //When start recording
       timer(true);
       onAccessApproved(muted);
     } else {
+        //When stop recording
       desktopSharing = false;
       paused = false;
       timer(false);
@@ -166,7 +174,8 @@ function play(blobs) {
 
 //StopRecord Event
 function stopRecording() {
-    toArrayBuffer(new Blob(blobs, {type: 'video/webm'}), function(ab) {
+    var blob = new Blob(blobs, {type: 'video/webm'});
+    toArrayBuffer(blob, function(ab) {
         var buffer = toBuffer(ab);
         // var file = files_path + '/' + new Date().getTime() + '.webm';
         var file = play(blobs);
@@ -177,10 +186,10 @@ function stopRecording() {
                 nodeIntegration: true
             }
         });
-        win.loadFile('video_link.html');
+        win.loadFile('view/video_link.html');
         win.webContents.on('did-finish-load', () => {
             win.webContents.send('file', file);
-            win.webContents.send('blobs', blobs);
+            win.webContents.send('buffer', buffer);
         })
         // console.log('Saved video: ' + file);
         document.getElementById('hours').innerHTML = '00';
@@ -349,6 +358,3 @@ $('#open_folder').click(function () {
     }
     shell.openItem(files_path)
 })
-function foo() {
-console.log('boo');
-}

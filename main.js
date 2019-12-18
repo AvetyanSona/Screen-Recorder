@@ -42,8 +42,8 @@ app.on('ready', () => {
     const mb = menubar({
         index: path.join('file://', __dirname, '/index.html'),
         icon: path.join(__dirname, '/assets/camera_48x48.png'),
-        width: 800,//280,
-        height: 300,
+        width: 295,
+        height: 470,
         resizable: true,
         showDockIcon: false,
         preloadWindow: true,

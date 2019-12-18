@@ -1,10 +1,10 @@
 const fs = require('fs');
 const shell = require('electron').shell;
+const remote = require('electron').remote;
+const BrowserWindow = remote.BrowserWindow;
 
-function downloadVideo(blobs) {
-    var blob = new Blob(blobs, {
-        type: 'video/webm'
-    });
+function downloadVideo(buffer) {
+    var blob = new Blob([buffer], {type: 'video/webm'});
     var file = new Date().getTime() + '.webm';
     var url = URL.createObjectURL(blob);
     var a = document.createElement('a');
@@ -16,15 +16,13 @@ function downloadVideo(blobs) {
     window.URL.revokeObjectURL(url);
 }
 
-function shareVideo(blobs) {
-    var blob = new Blob(blobs, {
-        type: 'video/webm'
-    });
+function shareVideo(buffer) {
+    var blob = new Blob([buffer], {type: 'video/webm'});
     var reader = new FileReader();
     var file = new Date().getTime() + '.webm';
     reader.onload = function(){
         var buffer = new Buffer(reader.result);
-        fs.writeFile(__dirname + '/upload/'+file, buffer, {}, (err, res) => {
+        fs.writeFile(__dirname + '/../upload/'+file, buffer, {}, (err, res) => {
             if(err){
                 console.error(err);
                 return
@@ -32,14 +30,15 @@ function shareVideo(blobs) {
                 var block = document.getElementById('buttonsBlock');
                 blockChild = document.createElement('div');
                 shareLink = document.createElement('a');
-                shareLink.href = 'http://localhost:9990/upload/' + file;
+                // shareLink.href = 'http://localhost:9990/upload/' + file;
+                shareLink.href = 'http://localhost:9990/view/shared_video.html';
                 shareLink.textContent = 'Share video';
-                shareLink.className = 'btn-secondary btn-lg btn-block';
+                shareLink.className = 'btn  btn-block primary_button';
                 blockChild.className = 'col-6';
                 shareLink.id = 'shareLink';
                 blockChild.appendChild(shareLink);
                 block.appendChild(blockChild);
-                document.querySelector('#shareLink').addEventListener('click',function () {
+                document.querySelector('#shareLink').addEventListener('click', function () {
                     event.preventDefault();
                     shell.openExternal(shareLink.href);
                 });
@@ -49,20 +48,6 @@ function shareVideo(blobs) {
     };
     reader.readAsArrayBuffer(blob);
 }
-
-// function toArrayBuffer(blob, cb) {
-//     let fileReader = new FileReader();
-//     fileReader.onload = function() {
-//         let arrayBuffer = this.result;
-//         cb(arrayBuffer);
-//     };
-//     fileReader.readAsArrayBuffer(blob);
-// }
-// function toBuffer(ab) {
-//     let buffer = Buffer.alloc(ab.byteLength);
-//     let arr = new Uint8Array(ab);
-//     for (let i = 0; i < arr.byteLength; i++) {
-//         buffer[i] = arr[i];
-//     }
-//     return buffer;
-// }
+ function cancelVideo() {
+     remote.getCurrentWindow().close();
+ }
