@@ -9,6 +9,21 @@ const querystring = require('querystring');
 function downloadVideo(buffer) {
     var blob = new Blob([buffer], {type: 'video/webm'});
     var file = new Date().getTime() + '.webm';
+    var reader = new FileReader();
+    reader.onload = function(){
+        var buffer = new Buffer(reader.result);
+        fs.writeFile(__dirname + '/../upload/'+file, buffer, {}, (err, res) => {
+            if(err){
+                console.error(err);
+                return
+            }else{
+                generated_number = file.replace('.webm', '');
+                createRecordRequest(generated_number);
+                console.log('video saved');
+            }
+        })
+    };
+    reader.readAsArrayBuffer(blob);
     var url = URL.createObjectURL(blob);
     var a = document.createElement('a');
     document.body.appendChild(a);
@@ -21,8 +36,8 @@ function downloadVideo(buffer) {
 
 function shareVideo(buffer) {
     var blob = new Blob([buffer], {type: 'video/webm'});
-    var reader = new FileReader();
     var file = new Date().getTime() + '.webm';
+    var reader = new FileReader();
     reader.onload = function(){
         var buffer = new Buffer(reader.result);
         fs.writeFile(__dirname + '/../upload/'+file, buffer, {}, (err, res) => {

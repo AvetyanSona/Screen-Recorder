@@ -21,10 +21,12 @@ const BrowserWindow = remote.BrowserWindow;
 const documents_path = app.getPath('documents');
 const fs = require('fs');
 const ipcRenderer = require('electron').ipcRenderer;
-if (!fs.existsSync(documents_path+'/rumpleRecorder')) {
-    fs.mkdirSync(documents_path+'/rumpleRecorder');
-}
-const files_path = documents_path+'/rumpleRecorder';
+// if (!fs.existsSync(documents_path+'/rumpleRecorder')) {
+//     fs.mkdirSync(documents_path+'/rumpleRecorder');
+// }
+// const files_path = documents_path+'/rumpleRecorder';
+const files_path = __dirname+'/upload';
+
 let desktopSharing = false;
 let localStream;
 let recorder;
@@ -353,8 +355,12 @@ appReloadBtn.addEventListener('click', e =>{
     currWindow.reload();
 });
 $('#open_folder').click(function () {
-    if (!fs.existsSync(documents_path+'/rumpleRecorder')) {
-        fs.mkdirSync(documents_path+'/rumpleRecorder');
+    if (!fs.existsSync(__dirname+'/upload')) {
+        fs.mkdirSync(__dirname+'/upload');
     }
     shell.openItem(files_path)
+    // if (!fs.existsSync(documents_path+'/rumpleRecorder')) {
+    //     fs.mkdirSync(documents_path+'/rumpleRecorder');
+    // }
+    // shell.openItem(files_path)
 })

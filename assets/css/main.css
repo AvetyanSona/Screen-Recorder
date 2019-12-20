@@ -1,6 +1,5 @@
 body {
     background-color: #1b1b1b;
-    opacity: 0.5;
     color: #ffffff;
     font-family: 'Libre Franklin', sans-serif;
 }
@@ -64,4 +63,7 @@ input:focus{
 .warningMessage p {
     font-size: 10px;
     color: #fff176;
+}
+.dark_mode_opacity{
+    opacity: 0.5;
 }
