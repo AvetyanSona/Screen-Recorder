@@ -35,6 +35,7 @@ ipcMain.on( "setMyGlobalVariable", ( event, mainMenuBlockStyle ) => {
     global.mainMenuBlockStyle = mainMenuBlockStyle;
 } );
 app.on('ready', () => {
+    const { net } = require('electron');
     let icon = '/assets/camera_48x48.png';
     if (isMac) {
         icon = '/assets/camera_16x16.png';
@@ -42,7 +43,7 @@ app.on('ready', () => {
     const mb = menubar({
         index: path.join('file://', __dirname, '/index.html'),
         icon: path.join(__dirname, '/assets/camera_48x48.png'),
-        width: 295,
+        width: 290,
         height: 470,
         resizable: true,
         showDockIcon: false,
