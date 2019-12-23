@@ -1,10 +1,11 @@
-const {app, globalShortcut, ipcMain} = require('electron');
+const {app, globalShortcut, ipcMain,Menu,Tray} = require('electron');
 const menubar = require('menubar')
 const path = require('path')
 const isMac = process.platform === 'darwin';
 const { fork } = require('child_process')
 const ps = fork(`${__dirname}/server.js`)
 
+const iconPath = path.join(__dirname,  '/assets/camera_16x16.png');
 let mainWindow;
 let mainMenuBlockStyle = true;
 // global.sharedObj = {value: mainMenuBlockStyle};
@@ -36,15 +37,22 @@ ipcMain.on( "setMyGlobalVariable", ( event, mainMenuBlockStyle ) => {
 } );
 app.on('ready', () => {
     const { net } = require('electron');
+    const tray = new Tray(iconPath);
     let icon = '/assets/camera_48x48.png';
     if (isMac) {
         icon = '/assets/camera_16x16.png';
     }
+    const contextMenu = Menu.buildFromTemplate([
+        { label: 'Item1', type: 'radio' },
+        { label: 'Quit', click: () => { app.quit(); } }
+    ]);
+    tray.setContextMenu(contextMenu);
     const mb = menubar({
         index: path.join('file://', __dirname, '/index.html'),
         icon: path.join(__dirname, '/assets/camera_48x48.png'),
         width: 290,
         height: 470,
+        tray:tray,
         resizable: true,
         showDockIcon: false,
         preloadWindow: true,
@@ -52,6 +60,11 @@ app.on('ready', () => {
             nodeIntegration: true
         }
     });
+    mb.on('ready', () => {
+        console.log('Menubar app is ready.');
+        // your app code here
+    });
+
     // Register a shortcut listener.
     const ret = globalShortcut.register('CommandOrControl+Shift+W', function () {
         if (mb.window.isVisible()) {
@@ -60,7 +73,6 @@ app.on('ready', () => {
             mb.window.show()
         }
     })
-
     if (!ret) {
         console.log('registration failed')
     }
