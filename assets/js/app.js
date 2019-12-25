@@ -44,14 +44,16 @@ let secs = 0;
 let mins = 0;
 let hours = 0;
 let restoreButton = document.getElementById('min-btn');
-
+let devices = [];
+let selectedDevice;
 // Set MyGlobalVariable.
 
 // Read MyGlobalVariable.
 
 //Window Onload
 $(document).ready(function() {
-    audioInputSelect = document.querySelector('select');
+    audioInputSelect = document.querySelector('#audioInputSelect');
+    videoSelect = document.querySelector('#videoSelectSelect');
     navigator.mediaDevices.enumerateDevices()
         .then(gotDevices)
         .catch(errorCallback);
@@ -76,10 +78,10 @@ $(document).ready(function() {
             }
         }
     }
-
-    function  errorCallback(e) {
-
-    }
+    function  errorCallback(e) {}
+    document.querySelector('#audioInputSelect').addEventListener('change', function(e) {
+        selectedDevice = document.getElementById("#audioInputSelect").value;
+    })
     restoreButton.addEventListener("click", event => {
         wnd = remote.getCurrentWindow();
         wnd.minimize();
@@ -147,7 +149,7 @@ function toggle() {
     if (!desktopSharing && in_process) {
         //When start recording
       timer(true);
-      onAccessApproved(muted);
+      onAccessApproved(muted,selectedDevice);
     } else {
         //When stop recording
       desktopSharing = false;
@@ -222,7 +224,7 @@ navigator.getUserMedia = navigator.getUserMedia ||
     navigator.webkitGetUserMedia ||
     navigator.mozGetUserMedia;
 
-function onAccessApproved(muted) {
+function onAccessApproved(muted,selectedDevice) {
   desktopSharing = true;
   let constraints;
     if(muted){
@@ -238,8 +240,16 @@ function onAccessApproved(muted) {
             }
         }
     }else{
+        let audio;
+        if(selectedDevice){
+            audio  = {
+                deviceId:selectedDevice
+            }
+        }else{
+            audio = true;
+        }
         constraints = {
-            audio: true,
+            audio: audio,
             video: false,
         }
     }
@@ -364,32 +374,3 @@ $('#open_folder').click(function () {
     // }
     // shell.openItem(files_path)
 })
-
-
-// const {Tray, Menu} = remote
-// const path = require('path')
-// let trayIcon = new Tray(path.join(__dirname,'/assets/camera_r.png'))
-//
-// const trayMenuTemplate = [
-//     {
-//         label: 'Empty Application',
-//         enabled: false
-//     },
-//
-//     {
-//         label: 'Settings',
-//         click: function () {
-//             console.log("Clicked on settings")
-//         }
-//     },
-//
-//     {
-//         label: 'Help',
-//         click: function () {
-//             console.log("Clicked on Help")
-//         }
-//     }
-// ]
-//
-// let trayMenu = Menu.buildFromTemplate(trayMenuTemplate)
-// trayIcon.setContextMenu(trayMenu)

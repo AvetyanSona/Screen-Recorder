@@ -1,22 +1,14 @@
 const {app, globalShortcut, ipcMain,Menu,Tray} = require('electron');
 const menubar = require('menubar')
 const path = require('path')
-const isMac = process.platform === 'darwin';
 const { fork } = require('child_process')
-const ps = fork(`${__dirname}/server.js`)
 
-const iconPath = path.join(__dirname,  '/assets/camera_16x16.png');
+
 let mainWindow;
 let mainMenuBlockStyle = true;
-// global.sharedObj = {value: mainMenuBlockStyle};
-// console.log('mainjs',mainMenuBlockStyle);
-
-// app.on('window-all-closed', () => {
-//   if (process.platform != 'darwin')
-//     app.quit();
-// });
-
-//app.setPath("userData", __dirname + "/saved_recordings");
+// const iconPath = path.join(__dirname,  'assets','camera_16x16.png');
+const ps = fork(`${__dirname}/server.js`)
+const isMac = process.platform === 'darwin';
 
 // Quit when all windows are closed.
 
@@ -35,55 +27,47 @@ app.on('will-quit', function () {
 ipcMain.on( "setMyGlobalVariable", ( event, mainMenuBlockStyle ) => {
     global.mainMenuBlockStyle = mainMenuBlockStyle;
 } );
-app.on('ready', () => {
-    const { net } = require('electron');
-    const tray = new Tray(iconPath);
-    let icon = '/assets/camera_48x48.png';
-    if (isMac) {
-        icon = '/assets/camera_16x16.png';
-    }
-    const contextMenu = Menu.buildFromTemplate([
-        { label: 'Item1', type: 'radio' },
-        { label: 'Quit', click: () => { app.quit(); } }
-    ]);
-    tray.setContextMenu(contextMenu);
-    const mb = menubar({
-        index: path.join('file://', __dirname, '/index.html'),
-        icon: path.join(__dirname, '/assets/camera_48x48.png'),
-        width: 290,
-        height: 470,
-        tray:tray,
-        resizable: true,
-        showDockIcon: false,
-        preloadWindow: true,
-        webPreferences: {
-            nodeIntegration: true
+
+    app.on('ready', () => {
+        const { net } = require('electron');
+        let icon = path.join(__dirname,  'assets','camera_48x48.png');
+        if (isMac) {
+            icon = path.join(__dirname,  'assets','camera_16x16.png');
         }
-    });
-    mb.on('ready', () => {
-        console.log('Menubar app is ready.');
-        // your app code here
-    });
+        const tray = new Tray(icon);
+        const contextMenu = Menu.buildFromTemplate([
+            { label: 'Open', click:  function(){
+                    mb.window.show();
+                } },
+            { label: 'Quit', click: () => { app.quit(); } }
+        ]);
+        tray.setContextMenu(contextMenu);
+        const mb = menubar({
+            index: path.join('file://', __dirname, '/index.html'),
+            icon: icon,
+            width: 290,
+            height: 470,
+            tray:tray,
+            resizable: true,
+            showDockIcon: false,
+            preloadWindow: true,
+            webPreferences: {
+                nodeIntegration: true
+            }
+        });
 
-    // Register a shortcut listener.
-    const ret = globalShortcut.register('CommandOrControl+Shift+W', function () {
-        if (mb.window.isVisible()) {
-            mb.window.hide()
-        } else {
-            mb.window.show()
+        // Register a shortcut listener.
+        const ret = globalShortcut.register('CommandOrControl+Shift+W', function () {
+            if (mb.window.isVisible()) {
+                mb.window.hide()
+            } else {
+                mb.window.show()
+            }
+        })
+        if (!ret) {
+            console.log('registration failed')
         }
-    })
-    if (!ret) {
-        console.log('registration failed')
-    }
-    mb.showWindow();
-    mb.window.openDevTools();
-    // mainWindow = new BrowserWindow({width: 500, height: 800});
-
-  // mainWindow.loadURL('file://' + __dirname + '/index.html');
-
-  // mainWindow.on('closed', () => {
-  //   mainWindow = null;
-  // });
-});
+        mb.showWindow();
+        mb.window.openDevTools();
+    });
 
