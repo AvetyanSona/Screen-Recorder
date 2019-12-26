@@ -67,3 +67,7 @@ input:focus{
 .dark_mode_opacity{
     opacity: 0.5;
 }
+#title-bar-btns i{
+    width: 15px;
+    height: 15px;
+}

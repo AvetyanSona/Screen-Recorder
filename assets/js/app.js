@@ -61,17 +61,19 @@ $(document).ready(function() {
     function gotDevices(deviceInfos) {
         for (let i = 0; i !== deviceInfos.length; ++i) {
             let deviceInfo = deviceInfos[i];
+            if (deviceInfo.kind === 'audioinput') {
+            }
             let option = document.createElement('option');
             option.value = deviceInfo.deviceId;
-            if (deviceInfo.kind === 'audioinput') {
+            if (deviceInfo.kind === 'audioinput' && deviceInfo.deviceId != 'default' && deviceInfo.deviceId != 'communications' ) {
                 option.text = deviceInfo.label ||
                     'Microphone ' + (audioInputSelect.length + 1);
                 audioInputSelect.appendChild(option);
-            } else if (deviceInfo.kind === 'audiooutput') {
+            } else if (deviceInfo.kind === 'audiooutput' && deviceInfo.deviceId != 'default' && deviceInfo.deviceId != 'communications') {
                 option.text = deviceInfo.label || 'Speaker ' +
                     (audioOutputSelect.length + 1);
                 audioOutputSelect.appendChild(option);
-            } else if (deviceInfo.kind === 'videoinput') {
+            } else if (deviceInfo.kind === 'videoinput' && deviceInfo.deviceId != 'default' && deviceInfo.deviceId != 'communications') {
                 option.text = deviceInfo.label || 'Camera ' +
                     (videoSelect.length + 1);
                 videoSelect.appendChild(option);
@@ -79,17 +81,19 @@ $(document).ready(function() {
         }
     }
     function  errorCallback(e) {}
+
     document.querySelector('#audioInputSelect').addEventListener('change', function(e) {
-        selectedDevice = document.getElementById("#audioInputSelect").value;
+        selectedDevice = document.getElementById("audioInputSelect").value;
     })
     restoreButton.addEventListener("click", event => {
         wnd = remote.getCurrentWindow();
         wnd.minimize();
     });
 });
+
 document.querySelector('#start').addEventListener('click', function(e) {
-    // wnd = remote.getCurrentWindow();
-    // wnd.minimize();
+    wnd = remote.getCurrentWindow();
+    wnd.minimize();
     if(in_process){
         in_process = false;
     }else{
@@ -152,11 +156,12 @@ function toggle() {
       onAccessApproved(muted,selectedDevice);
     } else {
         //When stop recording
-      desktopSharing = false;
+        desktopSharing = false;
       paused = false;
       timer(false);
       recorder.stop();
       if (localStream){
+          console.log('localStream',localStream);
           localStream.getTracks()[0].stop();
           localStream = null;
       }
@@ -278,8 +283,10 @@ function onAccessApproved(muted,selectedDevice) {
             recorder = new MediaRecorder(videoStream);
             blobs = [];
             recorder.ondataavailable = function(event) {
-                blobs.push(event.data);
-                stopRecording();
+                if (event.data.size > 1) {
+                    blobs.push(event.data);
+                    stopRecording();
+                }
             };
             recorder.start();
         };
