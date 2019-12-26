@@ -14,15 +14,19 @@
 
 const {shell} = require('electron');
 const remote = require('electron').remote;
+const desktopCapturer = require('electron').desktopCapturer;
 const currWindow   = remote.getCurrentWindow();
 const app = remote.app;
 const BrowserWindow = remote.BrowserWindow;
 const documents_path = app.getPath('documents');
 const fs = require('fs');
-if (!fs.existsSync(documents_path+'/rumpleRecorder')) {
-    fs.mkdirSync(documents_path+'/rumpleRecorder');
-}
-const files_path = documents_path+'/rumpleRecorder';
+const ipcRenderer = require('electron').ipcRenderer;
+// if (!fs.existsSync(documents_path+'/rumpleRecorder')) {
+//     fs.mkdirSync(documents_path+'/rumpleRecorder');
+// }
+// const files_path = documents_path+'/rumpleRecorder';
+const files_path = __dirname+'/upload';
+
 let desktopSharing = false;
 let localStream;
 let recorder;
@@ -34,14 +38,22 @@ let mins_block = document.querySelector("#mins");
 let hours_block = document.querySelector("#hours");
 let timer_;
 let paused = false;
+let in_process = false;
+let muted = false;
 let secs = 0;
 let mins = 0;
 let hours = 0;
 let restoreButton = document.getElementById('min-btn');
-let muted = false;
+let devices = [];
+let selectedDevice;
+// Set MyGlobalVariable.
+
+// Read MyGlobalVariable.
+
 //Window Onload
 $(document).ready(function() {
-    audioInputSelect = document.querySelector('select');
+    audioInputSelect = document.querySelector('#audioInputSelect');
+    videoSelect = document.querySelector('#videoSelectSelect');
     navigator.mediaDevices.enumerateDevices()
         .then(gotDevices)
         .catch(errorCallback);
@@ -66,16 +78,25 @@ $(document).ready(function() {
             }
         }
     }
-
-    function  errorCallback(e) {
-
-    }
+    function  errorCallback(e) {}
+    document.querySelector('#audioInputSelect').addEventListener('change', function(e) {
+        selectedDevice = document.getElementById("#audioInputSelect").value;
+    })
     restoreButton.addEventListener("click", event => {
         wnd = remote.getCurrentWindow();
         wnd.minimize();
     });
 });
-
+document.querySelector('#start').addEventListener('click', function(e) {
+    // wnd = remote.getCurrentWindow();
+    // wnd.minimize();
+    if(in_process){
+        in_process = false;
+    }else{
+        in_process = true;
+    }
+    toggle();
+});
 //Timer
 function timer(action) {
     if (action) {
@@ -94,6 +115,11 @@ function timer(action) {
                 secs = 0;
                 hours++;
             }
+            if(mins == 11){
+                desktopSharing = true;
+                in_process = false;
+                toggle();
+            }
             secs_block.innerHTML = secs < 10 ? "0"+secs : secs;
             if(mins > 0) {
                 mins_block.innerHTML = mins < 10 ? "0"+mins : mins;
@@ -101,6 +127,7 @@ function timer(action) {
             if(hours > 0) {
                 hours_block.innerHTML = hours < 10 ? "0"+hours : hours;
             }
+
         },1000)
     } else {
       clearInterval(timer_);
@@ -114,66 +141,64 @@ function timer(action) {
 
 //Click Events
 function toggle() {
-  if (!desktopSharing) {
-      document.querySelector('#pause_play>.fas').classList.toggle("fa-play");
-      document.querySelector('#pause_play>.fas').classList.toggle("fa-pause");
-      document.querySelector('#start>.fas').classList.toggle("fa-camera");
-      document.querySelector('#start>.fas').classList.toggle("fa-stop");
-      document.querySelector('#timer_block').classList.toggle("hidden");
+    document.querySelector('#pause_play>.fas').classList.toggle("fa-pause");
+    document.querySelector('#pause_play>.fas').classList.toggle("fa-play");
+    document.querySelector('#start>.fas').classList.toggle("fa-stop");
+    document.querySelector('#start>.fas').classList.toggle("fa-camera");
+    document.querySelector('#timer_block').classList.toggle("hidden");
+    if (!desktopSharing && in_process) {
+        //When start recording
       timer(true);
-      onAccessApproved(muted);
-  } else {
-      document.querySelector('#pause_play>.fas').classList.toggle("fa-pause");
-      document.querySelector('#pause_play>.fas').classList.toggle("fa-play");
-      document.querySelector('#timer_block').classList.toggle("hidden");
+      onAccessApproved(muted,selectedDevice);
+    } else {
+        //When stop recording
       desktopSharing = false;
-    if (localStream)
-      localStream.getTracks()[0].stop();
-      localStream = null;
       paused = false;
       timer(false);
       recorder.stop();
-      document.querySelector('#start>.fas').classList.toggle("fa-stop");
-      document.querySelector('#start>.fas').classList.toggle("fa-camera");
+      if (localStream){
+          localStream.getTracks()[0].stop();
+          localStream = null;
+      }
       if (!fs.existsSync(documents_path+'/rumpleRecorder')) {
           fs.mkdirSync(documents_path+'/rumpleRecorder');
       }
       //shell.openItem(files_path)
-  }
+    }
+}
+
+//Play Recorded but not saved Video
+
+function play(blobs) {
+    var superBuffer = new Blob(blobs);
+    videoElement =
+        window.URL.createObjectURL(superBuffer);
+    return videoElement;
 }
 
 //StopRecord Event
 function stopRecording() {
-    var x = blobs;
-    toArrayBuffer(new Blob(blobs, {type: 'video/webm'}), function(ab) {
+    var blob = new Blob(blobs, {type: 'video/webm'});
+    toArrayBuffer(blob, function(ab) {
         var buffer = toBuffer(ab);
-        var file = files_path + '/' + new Date().getTime() + '.webm';
-        fs.writeFile(file, buffer, function(err) {
-            if (err) {
-                console.error('Failed to save video ' + err);
-                document.getElementById('hours').innerHTML = '00';
-                document.getElementById('mins').innerHTML = '00';
-                document.getElementById('secs').innerHTML = '00';
-            } else {
-                // const BrowserWindow = remote.BrowserWindow;
-                var win = new BrowserWindow({
-                    width: 900,
-                    height: 600,
-                    webPreferences: {
-                        nodeIntegration: true
-                    }
-                });
-                win.loadFile('video_link.html');
-                win.webContents.on('did-finish-load', () => {
-                    win.webContents.send('file', file);
-                    win.webContents.send('blobs', blobs);
-                })
-                console.log('Saved video: ' + file);
-                document.getElementById('hours').innerHTML = '00';
-                document.getElementById('mins').innerHTML = '00';
-                document.getElementById('secs').innerHTML = '00';
+        // var file = files_path + '/' + new Date().getTime() + '.webm';
+        var file = play(blobs);
+        var win = new BrowserWindow({
+            width: 900,
+            height: 600,
+            webPreferences: {
+                nodeIntegration: true
             }
         });
+        win.loadFile('view/video_link.html');
+        win.webContents.on('did-finish-load', () => {
+            win.webContents.send('file', file);
+            win.webContents.send('buffer', buffer);
+        })
+        // console.log('Saved video: ' + file);
+        document.getElementById('hours').innerHTML = '00';
+        document.getElementById('mins').innerHTML = '00';
+        document.getElementById('secs').innerHTML = '00';
     });
 }
 
@@ -194,20 +219,20 @@ function toBuffer(ab) {
     }
     return buffer;
 }
+
 navigator.getUserMedia = navigator.getUserMedia ||
     navigator.webkitGetUserMedia ||
     navigator.mozGetUserMedia;
 
-function onAccessApproved(muted) {
+function onAccessApproved(muted,selectedDevice) {
   desktopSharing = true;
   let constraints;
-    // console.log(navigator.getUserMedia({audio: true}));return;
     if(muted){
         constraints = {
             audio: false,
             video: {
                 mandatory: {
-                    chromeMediaSource: 'desktop',
+                    chromeMediaSource: 'screen',
                     maxWidth: 1280,
                     maxHeight: 720,
                 },
@@ -215,8 +240,16 @@ function onAccessApproved(muted) {
             }
         }
     }else{
+        let audio;
+        if(selectedDevice){
+            audio  = {
+                deviceId:selectedDevice
+            }
+        }else{
+            audio = true;
+        }
         constraints = {
-            audio: true,
+            audio: audio,
             video: false,
         }
     }
@@ -225,7 +258,7 @@ function onAccessApproved(muted) {
             audio: false,
             video: {
                 mandatory: {
-                    chromeMediaSource: 'desktop',
+                    chromeMediaSource: 'screen',
                     maxWidth: 1280,
                     maxHeight: 720,
                 },
@@ -241,7 +274,6 @@ function onAccessApproved(muted) {
                 if (audioTracks.length > 0) {
                     videoStream.addTrack(audioTracks[0]);
                 }
-                console.log('videoStream',videoStream);
             }
             recorder = new MediaRecorder(videoStream);
             blobs = [];
@@ -259,11 +291,33 @@ function onAccessApproved(muted) {
 
 }
 
-document.querySelector('#start').addEventListener('click', function(e) {
-  toggle();
-});
 document.querySelector('#start_capture').addEventListener('click', function(e) {
     document.querySelector('#record_block').classList.toggle("hidden");
+});
+document.querySelector('#cancel_record').addEventListener('click', function(e) {
+    if(typeof recorder !== "undefined"){
+        if(recorder.state === "recording" || recorder.state === "paused" || recorder.state === "inactive") {
+            if(in_process){
+                in_process = false;
+            }else{
+                in_process = true;
+            }
+            desktopSharing = false;
+            timer(false);
+            document.querySelector('#pause_play>.fas').classList.toggle("fa-pause");
+            document.querySelector('#pause_play>.fas').classList.toggle("fa-play");
+            document.querySelector('#start>.fas').classList.toggle("fa-stop");
+            document.querySelector('#start>.fas').classList.toggle("fa-camera");
+            document.querySelector('#timer_block').classList.toggle("hidden");
+            document.getElementById('hours').innerHTML = '00';
+            document.getElementById('mins').innerHTML = '00';
+            document.getElementById('secs').innerHTML = '00';
+            recorder.stream.removeTrack;
+        }
+    }else{
+        document.querySelector('#record_block').classList.toggle("hidden");
+    }
+
 });
 document.querySelector('#mute').addEventListener('click', function(e) {
     document.querySelector('#mute>.fas').classList.toggle("fa-microphone");
@@ -311,11 +365,12 @@ appReloadBtn.addEventListener('click', e =>{
     currWindow.reload();
 });
 $('#open_folder').click(function () {
-    if (!fs.existsSync(documents_path+'/rumpleRecorder')) {
-        fs.mkdirSync(documents_path+'/rumpleRecorder');
+    if (!fs.existsSync(__dirname+'/upload')) {
+        fs.mkdirSync(__dirname+'/upload');
     }
     shell.openItem(files_path)
+    // if (!fs.existsSync(documents_path+'/rumpleRecorder')) {
+    //     fs.mkdirSync(documents_path+'/rumpleRecorder');
+    // }
+    // shell.openItem(files_path)
 })
-function foo() {
-console.log('boo');
-}

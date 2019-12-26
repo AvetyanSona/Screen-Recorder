@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link href="../assets/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/main.css">
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <div class="col-12" >
+        <video id="player" controls="true" autoplay="true" style="width: 100%;height: 100%"></video>
+    </div>
+    <div class="col-12" >
+        <div class="row" id="buttonsBlock">
+            <div class="col-2">
+                <button id="saveVideo" class="btn secondary_button" value="111" >Save</button>
+            </div>
+            <div class="col-2">
+                <button id="shareVideo" class="btn secondary_button" >Share</button>
+            </div>
+            <div class="col-2">
+                <button id="cancelVideo" class="btn secondary_button" >Cancel</button>
+            </div>
+        </div>
+    </div>
+</body>
+<script>
+    const electron = require('electron');
+    electron.ipcRenderer.on('file', (event, file) => {
+        document.querySelector("#player").setAttribute("src", file);
+    });
+    electron.ipcRenderer.on('buffer', (event, buffer) => {
+        document.querySelector('#saveVideo').addEventListener('click',function () {
+            downloadVideo(buffer);
+        });
+        document.querySelector('#shareVideo').addEventListener('click',function () {
+            shareVideo(buffer);
+        });
+    });
+    document.querySelector('#cancelVideo').addEventListener('click',function () {
+        cancelVideo();
+    });
+</script>
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
+<script src="../assets/js/videoHandling.js"></script>
+</html>

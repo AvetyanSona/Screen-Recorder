@@ -3,43 +3,56 @@
   <link href="assets/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/fa_all.css">
   <link rel="stylesheet" href="assets/css/main.css">
+  <link href="https://fonts.googleapis.com/css?family=Libre+Franklin&display=swap" rel="stylesheet">
 </head>
 <body>
-<div id="title-bar-btns">
-  <button id="min-btn" class="btn btn-sm btn-outline-light"><i class="far fa-window-minimize"></i></button>
-  <button id="close_button" class="btn btn-sm btn-outline-light"><i class="fas fa-times"></i></button>
-  <button id="reload_button" class="btn btn-sm btn-outline-light">Reload</button>
-</div>
+<div class="dark_mode_opacity">
+  <div class="col-12 p-0" id="title-bar-btns">
+    <div class="row">
+      <div class="col-7"></div>
+      <div class="col-5">
+        <button id="min-btn" class="btn btn-sm btn-outline-light"><i class="far fa-window-minimize"></i></button>
+        <button id="close_button" class="btn btn-sm btn-outline-light"><i class="fas fa-times"></i></button>
+        <button id="reload_button" class="btn btn-sm btn-outline-light"><i class="fas fa-sync"></i></button>
+      </div>
+    </div>
+  </div>
 
-<div class="container" style="margin-top:50px;">
-  <div class="container">
-    <h5 class="text-center" style="">Screen Recorder</h5>
-    <div class="text-center" style="margin-top:10px">
-      <button class="btn btn-secondary" style="background: black;border:none;" id="start_capture" title="Start capture"><i class="fas fa-image"></i></button>
-      <button class="btn btn-secondary" style="background: black;border:none;" id="open_folder" title="Show history"><i class="fas fa-folder"></i></button>
-    </div>
-    <div id="record_block" class="text-center hidden" style="margin-top:10px; padding: 0">
-      <button class="btn btn-secondary" id="start" title="Start"><i class="fas fa-camera"></i></button>
-      <button class="btn btn-secondary" id="pause_play" title="Pause/Play"><i class="fas fa-play"></i></button>
-      <button class="btn btn-secondary" id="mute" title="Mute"><i class="fas fa-microphone"></i></button>
-      <button class="btn btn-secondary" id="cancel_record" title="Cancel"><i class="fas fa-times"></i></button>
-    </div>
-    <div id="timer_block" class="text-center hidden" style="margin-top:10px; padding: 0">
-      <label> <b id="hours" class="">00</b>:</label>
-      <label> <b id="mins" class="">00</b>:</label>
-      <label> <b id="secs" class="">00</b></label>
-    </div>
+  <div class="container" style="margin-top:50px;">
+    <div class="container">
+      <div class="title">
+        <h5 class="text-center">Screen Recorder</h5>
+      </div>
+      <div class="text-center" style="margin-top:20px">
+        <button class="btn btn-secondary" style="background: black;border:none;" id="start_capture" title="Start capture"><i class="fas fa-image"></i></button>
+        <button class="btn btn-secondary" style="background: black;border:none;" id="open_folder" title="Show history"><i class="fas fa-folder"></i></button>
+      </div>
+      <div id="record_block" class="text-center hidden" style="margin-top:10px; padding: 0">
+        <button class="btn " id="start" title="Start"><i class="fas fa-camera"></i></button>
+        <button class="btn " id="pause_play" title="Pause/Play"><i class="fas fa-play"></i></button>
+        <button class="btn " id="mute" title="Mute"><i class="fas fa-microphone"></i></button>
+        <button class="btn " id="cancel_record" title="Cancel"><i class="fas fa-times"></i></button>
+        <div class="warningMessage">
+          <p>* Record max limit is 10 minutes. </p>
+        </div>
+      </div>
+      <div id="timer_block" class="text-center hidden" style="margin-top:10px; padding: 0">
+        <label> <b id="hours" class="">00</b>:</label>
+        <label> <b id="mins" class="">00</b>:</label>
+        <label> <b id="secs" class="">00</b></label>
+      </div>
 
-    <div>
-      <hr />
-      <label for="selectdevice" style="font-size: 13px;">Audio device</label>
-      <select id="selectdevice" class="form-control form-control-sm container-fluid"></select>
-    </div>
+      <div>
+        <hr />
+        <label for="audioInputSelect" style="font-size: 13px;">Audio device</label>
+        <select id="audioInputSelect" class="form-control form-control-sm container-fluid"></select>
+      </div>
 
+    </div>
   </div>
 </div>
-  <script type="text/javascript" src="jquery.js"></script>
-  <script type="text/javascript" src="image-picker.min.js"></script>
-  <script src="app.js"></script>
 </body>
+<script type="text/javascript" src="assets/js/jquery.js"></script>
+<script type="text/javascript" src="assets/js/image-picker.min.js"></script>
+<script src="assets/js/app.js"></script>
 </html>
