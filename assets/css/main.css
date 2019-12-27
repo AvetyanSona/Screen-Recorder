@@ -71,3 +71,46 @@ input:focus{
     width: 15px;
     height: 15px;
 }
+@media screen and (max-width: 200px) {
+    #title-bar-btns {
+        display: none;
+    }
+    .title{
+        display: none;
+    }
+    /*.aaa{*/
+    /*    display: none;*/
+    /*}*/
+    .audioInputSelect{
+        display: none;
+    }
+    .warningMessage{
+        display: none;
+    }
+    #start_capture{
+        display: none;
+    }
+    #open_folder{
+        display: none;
+    }
+    #mute{
+        display: none;
+    }
+    #timer_block{
+        font-size: 10px;
+    }
+    #record_block{
+        display: flex;
+        flex-wrap: wrap;
+        width: 76px;
+        justify-content: center;
+        align-items: center;
+        margin: 0;
+    }
+    #record_block button{
+        margin-top: 4px;
+    }
+    .mainContainer{
+        margin-top: 0;
+    }
+}

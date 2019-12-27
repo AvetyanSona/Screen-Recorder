@@ -55,7 +55,17 @@ function shareVideo(buffer) {
                 shareLink.className = 'btn  btn-block primary_button';
                 blockChild.className = 'col-6';
                 shareLink.id = 'shareLink';
+                var loading = document.getElementById("loading");
+                loading.style.display = "block";
+                // if (loading.style.display === "none") {
+                //     loading.style.display = "block";
+                // } else {
+                //     loading.style.display = "none";
+                // }
                 createRecordRequest(generated_number);
+                if(createRecordRequest){
+                    loading.style.display = "none";
+                }
                 blockChild.appendChild(shareLink);
                 block.appendChild(blockChild);
                 document.querySelector('#shareLink').addEventListener('click', function () {

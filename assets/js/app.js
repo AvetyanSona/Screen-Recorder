@@ -92,8 +92,6 @@ $(document).ready(function() {
 });
 
 document.querySelector('#start').addEventListener('click', function(e) {
-    wnd = remote.getCurrentWindow();
-    wnd.minimize();
     if(in_process){
         in_process = false;
     }else{
@@ -151,6 +149,8 @@ function toggle() {
     document.querySelector('#start>.fas').classList.toggle("fa-camera");
     document.querySelector('#timer_block').classList.toggle("hidden");
     if (!desktopSharing && in_process) {
+        wnd = remote.getCurrentWindow();
+        wnd.setSize(150,190)
         //When start recording
       timer(true);
       onAccessApproved(muted,selectedDevice);
@@ -184,6 +184,8 @@ function play(blobs) {
 //StopRecord Event
 function stopRecording() {
     var blob = new Blob(blobs, {type: 'video/webm'});
+    wnd = remote.getCurrentWindow();
+    wnd.setSize(300,470)
     toArrayBuffer(blob, function(ab) {
         var buffer = toBuffer(ab);
         // var file = files_path + '/' + new Date().getTime() + '.webm';

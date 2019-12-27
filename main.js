@@ -45,7 +45,7 @@ ipcMain.on( "setMyGlobalVariable", ( event, mainMenuBlockStyle ) => {
         const mb = menubar({
             index: path.join('file://', __dirname, '/index.html'),
             icon: icon,
-            width: 290,
+            width: 300,
             height: 470,
             tray:tray,
             resizable: true,
@@ -53,7 +53,8 @@ ipcMain.on( "setMyGlobalVariable", ( event, mainMenuBlockStyle ) => {
             preloadWindow: true,
             webPreferences: {
                 nodeIntegration: true
-            }
+            },
+            alwaysOnTop:true,
         });
 
         // Register a shortcut listener.
@@ -68,6 +69,6 @@ ipcMain.on( "setMyGlobalVariable", ( event, mainMenuBlockStyle ) => {
             console.log('registration failed')
         }
         mb.showWindow();
-        mb.window.openDevTools();
+        // mb.window.openDevTools();
     });
 
