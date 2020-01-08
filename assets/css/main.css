@@ -78,9 +78,6 @@ input:focus{
     .title{
         display: none;
     }
-    /*.aaa{*/
-    /*    display: none;*/
-    /*}*/
     .audioInputSelect{
         display: none;
     }
@@ -111,6 +108,16 @@ input:focus{
         margin-top: 4px;
     }
     .mainContainer{
-        margin-top: 0;
+        margin-top: 0 !important;
+        width: 80px;
+        padding: 0 !important;
+    }
+    #timer_block{
+        margin-top:10px;
+        padding: 0;
+        width: 70px !important;
+    }
+    .dark_mode_opacity{
+        width: 80px;
     }
 }
