@@ -2,12 +2,14 @@ const {app, globalShortcut, ipcMain,Menu,Tray} = require('electron');
 const menubar = require('menubar');
 const path = require('path');
 const { fork } = require('child_process');
-
+const screen = require('electron').screen;
 
 let mainMenuBlockStyle = true;
 // const iconPath = path.join(__dirname,  'assets','camera_16x16.png');
 const ps = fork(`${__dirname}/server.js`);
 const isMac = (process.platform === 'darwin');
+const isWin = (process.platform === 'win32');
+const isLinux = (process.platform === 'linux');
 
 // Quit when all windows are closed.
 
@@ -44,11 +46,21 @@ app.on('ready', () => {
         { label: 'Quit', click: () => { app.quit(); } }
     ]);
     tray.setContextMenu(contextMenu);
+    let displays = screen.getAllDisplays();
+    let width;
+    let height;
+    for(var i in displays)
+    {
+        width = displays[i].bounds.width;
+        height = displays[i].bounds.height;
+    }
     const mb = menubar({
         index: path.join('file://', __dirname, '/index.html'),
         icon: icon,
         width: 300,
         height: 470,
+        x:width-300,
+        y: isLinux ? 0 : height-470,
         tray:tray,
         resizable: true,
         showDockIcon: false,
@@ -72,6 +84,6 @@ app.on('ready', () => {
         console.log('registration failed')
     }
     mb.showWindow();
-    // mb.window.openDevTools();
+    mb.window.openDevTools();
 });
 

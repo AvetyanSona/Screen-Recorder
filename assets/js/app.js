@@ -22,6 +22,9 @@ const BrowserWindow = remote.BrowserWindow;
 const documents_path = app.getPath('documents');
 const fs = require('fs');
 const files_path = __dirname+'/upload';
+const isMac = (process.platform === 'darwin');
+const isWin = (process.platform === 'win32');
+const isLinux = (process.platform === 'linux');
 
 let desktopSharing = false;
 let localStream;
@@ -42,7 +45,14 @@ let mins = 0;
 let restoreButton = document.getElementById('min-btn');
 let devices = [];
 let selectedDevice;
-
+let displays = screen.getAllDisplays();
+let width;
+let height;
+for(var i in displays)
+{
+    width = displays[i].bounds.width;
+    height = displays[i].bounds.height;
+}
 //Window Onload
 $(document).ready(function() {
     audioInputSelect = document.querySelector('#audioInputSelect');
@@ -140,14 +150,6 @@ function timer(action) {
 
 //Click Events
 function toggle() {
-    let displays = screen.getAllDisplays();
-    let width;
-    let height;
-    for(var i in displays)
-    {
-        width = displays[i].bounds.width;
-        height = displays[i].bounds.height;
-    }
     document.querySelector('#pause_play>.fas').classList.toggle("fa-pause");
     document.querySelector('#pause_play>.fas').classList.toggle("fa-play");
     document.querySelector('#start>.fas').classList.toggle("fa-stop");
@@ -156,10 +158,11 @@ function toggle() {
     if (!desktopSharing && in_process) {
         wnd = remote.getCurrentWindow();
         wnd.setSize(100,170)
-        wnd.setPosition(width,0)
-        wnd.showInactive()
-        // wnd.setAlwaysOnTop(true,"floating",99);
-        // wnd.setVisibleOnAllWorkspaces(true)
+        if(isLinux) {
+            wnd.setPosition(width-100,0)
+        }else {
+            wnd.setPosition(width-100,height-170)
+        }
         //When start recording
       timer(true);
       onAccessApproved(muted,selectedDevice);
@@ -195,7 +198,11 @@ function stopRecording() {
     var blob = new Blob(blobs, {type: 'video/webm'});
     wnd = remote.getCurrentWindow();
     wnd.setSize(300,470)
-    // wnd.setPosition(width,0)
+    if(isLinux) {
+        wnd.setPosition(width-300,0)
+    }else {
+        wnd.setPosition(width-300,height-470)
+    }
     toArrayBuffer(blob, function(ab) {
         var buffer = toBuffer(ab);
         // var file = files_path + '/' + new Date().getTime() + '.webm';
