@@ -14,17 +14,13 @@
 
 const {shell} = require('electron');
 const remote = require('electron').remote;
+let screen = remote.screen;
 const desktopCapturer = require('electron').desktopCapturer;
 const currWindow   = remote.getCurrentWindow();
 const app = remote.app;
 const BrowserWindow = remote.BrowserWindow;
 const documents_path = app.getPath('documents');
 const fs = require('fs');
-const ipcRenderer = require('electron').ipcRenderer;
-// if (!fs.existsSync(documents_path+'/rumpleRecorder')) {
-//     fs.mkdirSync(documents_path+'/rumpleRecorder');
-// }
-// const files_path = documents_path+'/rumpleRecorder';
 const files_path = __dirname+'/upload';
 
 let desktopSharing = false;
@@ -35,20 +31,17 @@ let audioInputSelect;
 let audioInputId;
 let secs_block = document.querySelector("#secs");
 let mins_block = document.querySelector("#mins");
-let hours_block = document.querySelector("#hours");
+// let hours_block = document.querySelector("#hours");
 let timer_;
 let paused = false;
 let in_process = false;
 let muted = false;
 let secs = 0;
 let mins = 0;
-let hours = 0;
+// let hours = 0;
 let restoreButton = document.getElementById('min-btn');
 let devices = [];
 let selectedDevice;
-// Set MyGlobalVariable.
-
-// Read MyGlobalVariable.
 
 //Window Onload
 $(document).ready(function() {
@@ -61,35 +54,39 @@ $(document).ready(function() {
     function gotDevices(deviceInfos) {
         for (let i = 0; i !== deviceInfos.length; ++i) {
             let deviceInfo = deviceInfos[i];
+            if (deviceInfo.kind === 'audioinput') {
+            }
             let option = document.createElement('option');
             option.value = deviceInfo.deviceId;
-            if (deviceInfo.kind === 'audioinput') {
+            if (deviceInfo.kind === 'audioinput' && deviceInfo.deviceId != 'default' && deviceInfo.deviceId != 'communications' ) {
                 option.text = deviceInfo.label ||
                     'Microphone ' + (audioInputSelect.length + 1);
                 audioInputSelect.appendChild(option);
-            } else if (deviceInfo.kind === 'audiooutput') {
+            } else if (deviceInfo.kind === 'audiooutput' && deviceInfo.deviceId != 'default' && deviceInfo.deviceId != 'communications') {
                 option.text = deviceInfo.label || 'Speaker ' +
                     (audioOutputSelect.length + 1);
                 audioOutputSelect.appendChild(option);
-            } else if (deviceInfo.kind === 'videoinput') {
+            } else if (deviceInfo.kind === 'videoinput' && deviceInfo.deviceId != 'default' && deviceInfo.deviceId != 'communications') {
                 option.text = deviceInfo.label || 'Camera ' +
                     (videoSelect.length + 1);
                 videoSelect.appendChild(option);
             }
         }
     }
+
     function  errorCallback(e) {}
+
     document.querySelector('#audioInputSelect').addEventListener('change', function(e) {
-        selectedDevice = document.getElementById("#audioInputSelect").value;
-    })
+        selectedDevice = document.getElementById("audioInputSelect").value;
+    });
+
     restoreButton.addEventListener("click", event => {
         wnd = remote.getCurrentWindow();
         wnd.minimize();
     });
 });
+
 document.querySelector('#start').addEventListener('click', function(e) {
-    // wnd = remote.getCurrentWindow();
-    // wnd.minimize();
     if(in_process){
         in_process = false;
     }else{
@@ -97,13 +94,14 @@ document.querySelector('#start').addEventListener('click', function(e) {
     }
     toggle();
 });
+
 //Timer
 function timer(action) {
     if (action) {
         if (!paused) {
              secs = 0;
              mins = 0;
-             hours = 0;
+             // hours = 0;
         }
         timer_ = setInterval(function () {
             if (secs > 59) {
@@ -113,7 +111,7 @@ function timer(action) {
             secs++;
             if (mins > 59) {
                 secs = 0;
-                hours++;
+                // hours++;
             }
             if(mins == 11){
                 desktopSharing = true;
@@ -124,9 +122,9 @@ function timer(action) {
             if(mins > 0) {
                 mins_block.innerHTML = mins < 10 ? "0"+mins : mins;
             }
-            if(hours > 0) {
-                hours_block.innerHTML = hours < 10 ? "0"+hours : hours;
-            }
+            // if(hours > 0) {
+            //     hours_block.innerHTML = hours < 10 ? "0"+hours : hours;
+            // }
 
         },1000)
     } else {
@@ -134,29 +132,45 @@ function timer(action) {
         if (!paused) {
             secs_block.innerHTML = '&nbsp;';
             mins_block.innerHTML = '&nbsp;';
-            hours_block.innerHTML = '&nbsp;';
+            // hours_block.innerHTML = '&nbsp;';
         }
     }
-}
+};
+
 
 //Click Events
 function toggle() {
+    let displays = screen.getAllDisplays();
+    let width;
+    let height;
+    for(var i in displays)
+    {
+        width = displays[i].bounds.width;
+        height = displays[i].bounds.height;
+    }
     document.querySelector('#pause_play>.fas').classList.toggle("fa-pause");
     document.querySelector('#pause_play>.fas').classList.toggle("fa-play");
     document.querySelector('#start>.fas').classList.toggle("fa-stop");
     document.querySelector('#start>.fas').classList.toggle("fa-camera");
     document.querySelector('#timer_block').classList.toggle("hidden");
     if (!desktopSharing && in_process) {
+        wnd = remote.getCurrentWindow();
+        wnd.setSize(100,170)
+        wnd.setPosition(width,0)
+        wnd.showInactive()
+        // wnd.setAlwaysOnTop(true,"floating",99);
+        // wnd.setVisibleOnAllWorkspaces(true)
         //When start recording
       timer(true);
       onAccessApproved(muted,selectedDevice);
     } else {
         //When stop recording
-      desktopSharing = false;
+        desktopSharing = false;
       paused = false;
       timer(false);
       recorder.stop();
       if (localStream){
+          console.log('localStream',localStream);
           localStream.getTracks()[0].stop();
           localStream = null;
       }
@@ -165,7 +179,7 @@ function toggle() {
       }
       //shell.openItem(files_path)
     }
-}
+};
 
 //Play Recorded but not saved Video
 
@@ -174,11 +188,14 @@ function play(blobs) {
     videoElement =
         window.URL.createObjectURL(superBuffer);
     return videoElement;
-}
+};
 
 //StopRecord Event
 function stopRecording() {
     var blob = new Blob(blobs, {type: 'video/webm'});
+    wnd = remote.getCurrentWindow();
+    wnd.setSize(300,470)
+    // wnd.setPosition(width,0)
     toArrayBuffer(blob, function(ab) {
         var buffer = toBuffer(ab);
         // var file = files_path + '/' + new Date().getTime() + '.webm';
@@ -188,7 +205,8 @@ function stopRecording() {
             height: 600,
             webPreferences: {
                 nodeIntegration: true
-            }
+            },
+            alwaysOnTop:true,
         });
         win.loadFile('view/video_link.html');
         win.webContents.on('did-finish-load', () => {
@@ -196,11 +214,11 @@ function stopRecording() {
             win.webContents.send('buffer', buffer);
         })
         // console.log('Saved video: ' + file);
-        document.getElementById('hours').innerHTML = '00';
+        // document.getElementById('hours').innerHTML = '00';
         document.getElementById('mins').innerHTML = '00';
         document.getElementById('secs').innerHTML = '00';
     });
-}
+};
 
 function toArrayBuffer(blob, cb) {
     let fileReader = new FileReader();
@@ -209,7 +227,7 @@ function toArrayBuffer(blob, cb) {
         cb(arrayBuffer);
     };
     fileReader.readAsArrayBuffer(blob);
-}
+};
 
 function toBuffer(ab) {
     let buffer = Buffer.alloc(ab.byteLength);
@@ -218,13 +236,21 @@ function toBuffer(ab) {
         buffer[i] = arr[i];
     }
     return buffer;
-}
+};
 
 navigator.getUserMedia = navigator.getUserMedia ||
     navigator.webkitGetUserMedia ||
     navigator.mozGetUserMedia;
 
 function onAccessApproved(muted,selectedDevice) {
+    desktopCapturer.getSources({
+        types: ['window', 'screen']
+    }, (error, sources) => {
+        if (error) throw error
+        for (let i = 0; i < sources.length; ++i) {
+            console.log(sources[i]);
+        }
+    });
   desktopSharing = true;
   let constraints;
     if(muted){
@@ -232,7 +258,7 @@ function onAccessApproved(muted,selectedDevice) {
             audio: false,
             video: {
                 mandatory: {
-                    chromeMediaSource: 'screen',
+                    chromeMediaSource: 'desktop',
                     maxWidth: 1280,
                     maxHeight: 720,
                 },
@@ -258,7 +284,7 @@ function onAccessApproved(muted,selectedDevice) {
             audio: false,
             video: {
                 mandatory: {
-                    chromeMediaSource: 'screen',
+                    chromeMediaSource: 'desktop',
                     maxWidth: 1280,
                     maxHeight: 720,
                 },
@@ -278,8 +304,10 @@ function onAccessApproved(muted,selectedDevice) {
             recorder = new MediaRecorder(videoStream);
             blobs = [];
             recorder.ondataavailable = function(event) {
-                blobs.push(event.data);
-                stopRecording();
+                if (event.data.size > 1) {
+                    blobs.push(event.data);
+                    stopRecording();
+                }
             };
             recorder.start();
         };
@@ -309,7 +337,7 @@ document.querySelector('#cancel_record').addEventListener('click', function(e) {
             document.querySelector('#start>.fas').classList.toggle("fa-stop");
             document.querySelector('#start>.fas').classList.toggle("fa-camera");
             document.querySelector('#timer_block').classList.toggle("hidden");
-            document.getElementById('hours').innerHTML = '00';
+            // document.getElementById('hours').innerHTML = '00';
             document.getElementById('mins').innerHTML = '00';
             document.getElementById('secs').innerHTML = '00';
             recorder.stream.removeTrack;
@@ -355,11 +383,12 @@ document.querySelector('#pause_play').addEventListener('click', function(e) {
 
 $('select').change(function () {
     audioInputId = $(this).val();
-})
+});
 
 $("#close_button").click(function () {
     remote.getCurrentWindow().close();
-})
+});
+
 appReloadBtn  = document.querySelector('#reload_button');
 appReloadBtn.addEventListener('click', e =>{
     currWindow.reload();
@@ -369,8 +398,4 @@ $('#open_folder').click(function () {
         fs.mkdirSync(__dirname+'/upload');
     }
     shell.openItem(files_path)
-    // if (!fs.existsSync(documents_path+'/rumpleRecorder')) {
-    //     fs.mkdirSync(documents_path+'/rumpleRecorder');
-    // }
-    // shell.openItem(files_path)
-})
+});
