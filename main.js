@@ -62,6 +62,7 @@ app.on('ready', () => {
         x:width-300,
         y: isLinux ? 0 : height-470,
         tray:tray,
+        movable:true,
         resizable: true,
         showDockIcon: false,
         preloadWindow: true,

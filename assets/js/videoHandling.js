@@ -5,111 +5,121 @@ const remote = require('electron').remote;
 const BrowserWindow = remote.BrowserWindow;
 const {net} = require('electron').remote;
 const querystring = require('querystring');
+const serverUrl = 'http://localhost:9000/';
 
+// function downloadVideo(buffer) {
+//     var blob = new Blob([buffer], {type: 'video/webm'});
+//     var file = new Date().getTime() + '.webm';
+//     generated_number = file.replace('.webm', '');
+//     $.get( serverUrl+'records_list.php?id='+generated_number )
+//         .done(function( response ) {
+//             if (response == 'success') {
+//                 var fileReader = new FileReader();
+//                 fileReader.onload = function(){
+//                     var buffer = new Buffer(reader.result);
+//                     fs.writeFile(__dirname + '/../upload/'+file, buffer, {}, (err, res) => {
+//                         if(err){
+//                             console.error(err);
+//                             return
+//                         }else {
+//                             fileReader.readAsArrayBuffer(blob);
+//                             var url = URL.createObjectURL(blob);
+//                             var a = document.createElement('a');
+//                             document.body.appendChild(a);
+//                             a.style = 'display: none';
+//                             a.href = url;
+//                             a.download = file;
+//                             a.click();
+//                             window.URL.revokeObjectURL(url);
+//                         }
+//                     })
+//                 };
+//             } else if (response == 'exist') {
+//                 return;
+//             }
+//         }).fail(function() {
+//         alert('something wrong with connection');
+//     });
+// }
 function downloadVideo(buffer) {
     var blob = new Blob([buffer], {type: 'video/webm'});
     var file = new Date().getTime() + '.webm';
-    var reader = new FileReader();
-    reader.onload = function(){
-        var buffer = new Buffer(reader.result);
-        fs.writeFile(__dirname + '/../upload/'+file, buffer, {}, (err, res) => {
-            if(err){
-                console.error(err);
-                return
-            }else{
-                generated_number = file.replace('.webm', '');
-                createRecordRequest(generated_number);
-                console.log('video saved');
+    generated_number = file.replace('.webm', '');
+    $.get( serverUrl+'records_list.php?id='+generated_number )
+        .done(function( res ) {
+            if (res == 'success') {
+                var reader = new FileReader();
+                reader.onload = function(){
+                    var buffer = new Buffer(reader.result);
+                    fs.writeFile(__dirname + '/../upload/'+file, buffer, {}, (err, res) => {
+                        if(err){
+                            console.error(err);
+                            return
+                        }else{
+                            reader.readAsArrayBuffer(blob);
+                            var url = URL.createObjectURL(blob);
+                            var a = document.createElement('a');
+                            document.body.appendChild(a);
+                            a.style = 'display: none';
+                            a.href = url;
+                            a.download = file;
+                            a.click();
+                            window.URL.revokeObjectURL(url);
+                        }
+                    })
+                };
+                reader.readAsArrayBuffer(blob);
+            } else if (res == 'exist') {
+                return;
             }
-        })
-    };
-    reader.readAsArrayBuffer(blob);
-    var url = URL.createObjectURL(blob);
-    var a = document.createElement('a');
-    document.body.appendChild(a);
-    a.style = 'display: none';
-    a.href = url;
-    a.download = file;
-    a.click();
-    window.URL.revokeObjectURL(url);
+        }).fail(function() {
+        alert('something wrong with connection');
+    });
 }
-
 function shareVideo(buffer) {
     var blob = new Blob([buffer], {type: 'video/webm'});
     var file = new Date().getTime() + '.webm';
-    var reader = new FileReader();
-    reader.onload = function(){
-        var buffer = new Buffer(reader.result);
-        fs.writeFile(__dirname + '/../upload/'+file, buffer, {}, (err, res) => {
-            if(err){
-                console.error(err);
-                return
-            }else{
-                var block = document.getElementById('buttonsBlock');
-                blockChild = document.createElement('div');
-                shareLink = document.createElement('a');
-                // shareLink.href = 'http://localhost:9990/upload/' + file;
-                generated_number = file.replace('.webm', '');
-                shareLink.href = 'http://localhost:9000/view/shared_video.php?id='+generated_number;
-                shareLink.textContent = 'Share video';
-                shareLink.className = 'btn  btn-block primary_button';
-                blockChild.className = 'col-6';
-                shareLink.id = 'shareLink';
-                var loading = document.getElementById("loading");
-                loading.style.display = "block";
-                // if (loading.style.display === "none") {
-                //     loading.style.display = "block";
-                // } else {
-                //     loading.style.display = "none";
-                // }
-                createRecordRequest(generated_number);
-                if(createRecordRequest){
-                    loading.style.display = "none";
-                }
-                blockChild.appendChild(shareLink);
-                block.appendChild(blockChild);
-                document.querySelector('#shareLink').addEventListener('click', function () {
-                    event.preventDefault();
-                    shell.openExternal(shareLink.href);
-                });
-                console.log('video saved');
+    generated_number = file.replace('.webm', '');
+    var loading = document.getElementById("loading");
+    loading.style.display = "block";
+    $.get( serverUrl+'records_list.php?id='+generated_number )
+        .done(function( res ) {
+            if (res == 'success') {
+                var reader = new FileReader();
+                reader.onload = function(){
+                    console.log('here')
+                    var buffer = new Buffer(reader.result);
+                    fs.writeFile(__dirname + '/../upload/'+file, buffer, {}, (err, res) => {
+                        if(err){
+                            console.error(err);
+                            return
+                        }else{
+                            var block = document.getElementById('buttonsBlock');
+                            blockChild = document.createElement('div');
+                            shareLink = document.createElement('a');
+                            shareLink.href = serverUrl +'view/shared_video.php?id='+generated_number;
+                            shareLink.textContent = 'Share video';
+                            shareLink.className = 'btn  btn-block primary_button';
+                            blockChild.className = 'col-6';
+                            shareLink.id = 'shareLink';
+                            loading.style.display = "none";
+                            blockChild.appendChild(shareLink);
+                            block.appendChild(blockChild);
+                            document.querySelector('#shareLink').addEventListener('click', function () {
+                                event.preventDefault();
+                                shell.openExternal(shareLink.href);
+                            })
+                        }
+                    })
+                };
+                reader.readAsArrayBuffer(blob);
+            } else if (res == 'exist') {
+                return;
             }
-        })
-    };
-    reader.readAsArrayBuffer(blob);
+        }).fail(function() {
+        alert('something wrong with connection');
+    });
 }
- function cancelVideo() {
+function cancelVideo() {
      remote.getCurrentWindow().close();
  }
-
-function createRecordRequest(id){
-    let body = '';
-    let response = '';
-    var postData = querystring.stringify({
-        'id' : id,
-    });
-    const request = net.request({
-        method: 'GET',
-        url: 'http://localhost:9000/records_list.php?'+postData,
-    });
-    request.on('error', (error) => {
-        console.log('error');
-        response = 'error';
-    });
-    request.on('response', (response) => {
-        console.log(`STATUS: ${response.statusCode}`)
-        console.log(`HEADERS: ${JSON.stringify(response.headers)}`)
-        response.on('data', (chunk) => {
-            console.log(`body:${chunk}`);
-            body += chunk.toString()
-            response = body;
-        })
-        // when response is complete, print body
-        response.on('end', () => {
-            console.log(`BODY: ${body}`);
-            response = `${body}`;
-        })
-    })
-    request.write(postData);
-    request.end();
-}

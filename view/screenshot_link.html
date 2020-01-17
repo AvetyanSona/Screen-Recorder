@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link href="../assets/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/main.css">
+    <link rel="stylesheet" href="../assets/css/fa_all.css">
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <div id="screenArea" class="draggable" style="width: 100px; height: 50px;"></div>
+    <div class="col-12 p-0 " id="imgLayer" >
+        <img id="screenshot">
+    </div>
+    <div class="col-3 p-0 my-2"  id="selectionButtons" hidden >
+        <div class="row">
+            <div class="col-1 ml-3">
+                <button id="start" class="btn primary_button" title="Capture Video"><i class="fas fa-film"></i></i></button>
+            </div>
+            <div class="col-1 ml-3">
+                <button id="shareVideo" class="btn primary_button"><i class="fas fa-redo-alt"></i></button>
+            </div>
+            <div class="col-1 ml-3">
+                <button id="cancelVideo" class="btn primary_button"><i class="fas fa-times"></i></button>
+            </div>
+        </div>
+    </div>
+</body>
+<script>
+    const electron = require('electron');
+    electron.ipcRenderer.on('img', (event, img) => {
+        document.querySelector("#screenshot").setAttribute("src", img);
+    });
+</script>
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
+<script type="text/javascript" src="../assets/js/jquery.js"></script>
+<!--<script src="../assets/js/videoHandling.js"></script>-->
+<script src="../assets/js/desktopSelection.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
+<script src="https://unpkg.com/interactjs/dist/interact.min.js"></script>
+<!--<script src="../assets/js/app.js"></script>-->
+</html>

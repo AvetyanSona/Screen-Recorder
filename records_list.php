@@ -1,7 +1,6 @@
 <?php
 require_once 'config.php';
 session_start();
-
 if (isset($_GET['id'])) {
     $generated_number = $_GET['id'];
     $path = 'upload/' . $generated_number . '.webm';

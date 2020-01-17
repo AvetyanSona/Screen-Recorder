@@ -121,3 +121,22 @@ input:focus{
         width: 80px;
     }
 }
+#screenArea{
+    border: 1px dotted white;
+    position: absolute;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 99;
+    touch-action: none;
+}
+#imgLayer{
+    position:relative;
+    width: 100vw;
+    height: 100vh;
+}
+#imgLayer img{
+    width: 100%;
+    height: 100%;
+}
+#selectionButtons{
+    position: absolute;
+}
