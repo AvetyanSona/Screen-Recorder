@@ -16,81 +16,17 @@ let height;
 const buttonsHeight = 54;
 const buttonsWidth = 155.5;
 
-for(var i in displays)
-{
+for(var i in displays) {
     width = displays[i].bounds.width;
     height = displays[i].bounds.height;
 }
-// var clickCount = 0;
-// var onMouseUp = false;
-let div = document.getElementById('screenArea'), x1 = 0, y1 = 0, x2 = 0, y2 = 0;
+
 let selectionButtons = document.getElementById('selectionButtons');
-
-// function reCalc() {
-//     var x3 = Math.min(x1,x2);
-//     var x4 = Math.max(x1,x2);
-//     var y3 = Math.min(y1,y2);
-//     var y4 = Math.max(y1,y2);
-//     div.style.left = x3 + 'px';
-//     div.style.top = y3 + 'px';
-//     div.style.width = x4 - x3 + 'px';
-//     div.style.height = y4 - y3 + 'px';
-// }
-// onmousedown = function(e) {
-//     div.hidden = 0;
-//     x1 = e.clientX;
-//     y1 = e.clientY;
-//     reCalc();
-//     clickCount++;
-// };
-// onmousemove = function(e) {
-//     x2 = e.clientX;
-//     y2 = e.clientY;
-//     if(!onMouseUp){
-//         reCalc();
-//     }
-// };
-// onmouseup = function(e) {
-//     let selectedBlockTop = Math.min(y1,y2);
-//     let selectedBlockRight = width- Math.max(x1,x2);
-//     let selectedBlockBottom = height - Math.max(y1,y2);
-//     let selectedBlockLeft = Math.min(x1,x2);
-//     if (clickCount == 1) {
-//         div.hidden = 0;
-//         onMouseUp = true;
-//         selectionButtons.hidden = 0;
-//         if ((selectedBlockTop - buttonsHeight) >= 0) {
-//             console.log('top',(selectedBlockTop - buttonsHeight))
-//             selectionButtons.style.top = (selectedBlockTop - buttonsHeight) + 'px';
-//             selectionButtons.style.left = selectedBlockLeft + 'px';
-//         } else if ((selectedBlockBottom - buttonsHeight) >= 0){
-//             console.log('bottom',(selectedBlockBottom - buttonsHeight))
-//             selectionButtons.style.bottom = selectedBlockBottom  + 'px';
-//             selectionButtons.style.left = selectedBlockLeft + 'px';
-//         } else if((selectedBlockLeft - buttonsWidth) >= 0){
-//             console.log('left',(selectedBlockLeft - buttonsWidth))
-//             selectionButtons.style.left = selectedBlockLeft + 'px';
-//             selectionButtons.style.top = selectedBlockTop + 'px';
-//         }else if((selectedBlockRight - buttonsWidth) >= 0){
-//             console.log('right',(selectedBlockRight - buttonsWidth))
-//             selectionButtons.style.right = selectedBlockRight + 'px';
-//             selectionButtons.style.bottom = selectedBlockBottom + 'px';
-//         }else{
-//             console.log('else',selectedBlockTop,selectedBlockLeft)
-//             selectionButtons.style.top = selectedBlockTop + 'px';
-//             selectionButtons.style.left = selectedBlockLeft + 'px';
-//         }
-//     }
-//     else {
-//         div.hidden = 1;
-//         clickCount = 0;
-//         onMouseUp = false;
-//         selectionButtons.hidden = 1;
-//     }
-// };
 var element = document.getElementById('screenArea')
-var x = 0; var y = 0
-
+var x = 0;
+var y = 0;
+var screenWidth = 100;
+var screenHeight = 50;
 interact(element)
     .resizable({
         // resize from all edges and corners
@@ -101,7 +37,6 @@ interact(element)
             interact.modifiers.restrictEdges({
                 outer: 'parent'
             }),
-
             // minimum size
             interact.modifiers.restrictSize({
                 min: { width: 100, height: 50 }
@@ -117,6 +52,24 @@ interact(element)
                 'translate(' + x + 'px, ' + y + 'px)'
         event.target.setAttribute('data-x',x)
         event.target.setAttribute('data-y',y)
+        selectionButtons.style.display = 'block';
+
+        if((y-buttonsHeight) >= 0){
+            selectionButtons.style.left = x + 'px';
+            selectionButtons.style.top =(y-buttonsHeight) + 'px';
+        } else if((height-screenHeight-y-buttonsHeight) >= 0){
+            selectionButtons.style.left = x + 'px';
+            selectionButtons.style.top =(screenHeight+y) + 'px';
+        }else if((x-buttonsWidth) >= 0){
+            selectionButtons.style.left = (x-buttonsWidth) + 'px';
+            selectionButtons.style.top =y + 'px';
+        }else if((width-screenWidth-x-buttonsWidth) >= 0){
+            selectionButtons.style.left = (screenWidth+x) + 'px';
+            selectionButtons.style.top =y + 'px';
+        }else{
+            selectionButtons.style.left = x + 'px';
+            selectionButtons.style.top =y + 'px';
+        }
     })
     .draggable({
         modifiers: [
@@ -139,8 +92,7 @@ interact(element)
         var target = event.target
         var x = (parseFloat(target.getAttribute('data-x')) || 0)
         var y = (parseFloat(target.getAttribute('data-y')) || 0)
-        console.log(x)
-        console.log(y)
+
         // update the element's style
         target.style.width = event.rect.width + 'px'
         target.style.height = event.rect.height + 'px'
@@ -155,10 +107,26 @@ interact(element)
         target.setAttribute('data-x', x)
         target.setAttribute('data-y', y)
         target.textContent = Math.round(event.rect.width) + '\u00D7' + Math.round(event.rect.height)
+        screenWidth = event.rect.width;
+        screenHeight = event.rect.height;
+        selectionButtons.style.display = 'block';
+
+        if((y-buttonsHeight) >= 0){
+            selectionButtons.style.left = x + 'px';
+            selectionButtons.style.top =(y-buttonsHeight) + 'px';
+        } else if((height-screenHeight-y-buttonsHeight) >= 0){
+            selectionButtons.style.left = x + 'px';
+            selectionButtons.style.top =(screenHeight+y) + 'px';
+        }else if((x-buttonsWidth) >= 0){
+            selectionButtons.style.left = (x-buttonsWidth) + 'px';
+            selectionButtons.style.top =y + 'px';
+        }else if((width-screenWidth-x-buttonsWidth) >= 0){
+            selectionButtons.style.left = (screenWidth+x) + 'px';
+            selectionButtons.style.top =y + 'px';
+        }else{
+            selectionButtons.style.left = x + 'px';
+            selectionButtons.style.top =y + 'px';
+        }
     })
-
-
-
-
 
 

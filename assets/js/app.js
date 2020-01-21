@@ -334,7 +334,7 @@ document.querySelector('#start_capture').addEventListener('click', function(e) {
         var win = new BrowserWindow({
             width: width,
             height: height,
-            // fullscreen: true,
+            fullscreen: true,
             webPreferences: {
                 nodeIntegration: true
             },
