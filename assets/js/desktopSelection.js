@@ -20,6 +20,7 @@ for(var i in displays) {
     width = displays[i].bounds.width;
     height = displays[i].bounds.height;
 }
+let muted = false;
 
 let selectionButtons = document.getElementById('selectionButtons');
 var element = document.getElementById('screenArea')
@@ -129,4 +130,15 @@ interact(element)
         }
     })
 
-
+function cancelSelection() {
+    remote.getCurrentWindow().close();
+}
+function muteRecordedVideo() {
+    document.querySelector('#mute>.fas').classList.toggle("fa-microphone");
+    document.querySelector('#mute>.fas').classList.toggle("fa-microphone-slash");
+    if(muted){
+        muted = false;
+    }else{
+        muted = true;
+    }
+}

@@ -122,7 +122,7 @@ input:focus{
     }
 }
 #screenArea{
-    border: 1px dotted white;
+    border: 2px dotted #fff176;
     position: absolute;
     background: rgba(0, 0, 0, 0.5);
     z-index: 99;

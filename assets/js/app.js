@@ -38,7 +38,6 @@ let mins_block = document.querySelector("#mins");
 let timer_;
 let paused = false;
 let in_process = false;
-let muted = false;
 let secs = 0;
 let mins = 0;
 // let hours = 0;
@@ -334,7 +333,7 @@ document.querySelector('#start_capture').addEventListener('click', function(e) {
         var win = new BrowserWindow({
             width: width,
             height: height,
-            fullscreen: true,
+            // fullscreen: true,
             webPreferences: {
                 nodeIntegration: true
             },
@@ -373,15 +372,15 @@ document.querySelector('#cancel_record').addEventListener('click', function(e) {
     }
 
 });
-document.querySelector('#mute').addEventListener('click', function(e) {
-    document.querySelector('#mute>.fas').classList.toggle("fa-microphone");
-    document.querySelector('#mute>.fas').classList.toggle("fa-microphone-slash");
-    if(muted){
-        muted = false;
-    }else{
-        muted = true;
-    }
-});
+// document.querySelector('#mute').addEventListener('click', function(e) {
+//     document.querySelector('#mute>.fas').classList.toggle("fa-microphone");
+//     document.querySelector('#mute>.fas').classList.toggle("fa-microphone-slash");
+//     if(muted){
+//         muted = false;
+//     }else{
+//         muted = true;
+//     }
+// });
 document.querySelector('#pause_play').addEventListener('click', function(e) {
     if (typeof recorder !== "undefined"){
         if(recorder.state === "recording") {
