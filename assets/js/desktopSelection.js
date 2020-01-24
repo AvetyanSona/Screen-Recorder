@@ -40,7 +40,7 @@ interact(element)
             }),
             // minimum size
             interact.modifiers.restrictSize({
-                min: { width: 100, height: 50 }
+                min: { width: 200, height: 100 }
             })
         ],
         inertia: true
